@@ -9,7 +9,6 @@ export const useLoginMutation = () => {
   const mutation = useMutation({
     mutationFn: (body: LoginHttpInterface) => AuthServices.login(body),
     onSuccess: (response) => {
-      console.log("Login successful:", response);
       setSession({
         user: response.user,
         token: response.token,
@@ -17,7 +16,7 @@ export const useLoginMutation = () => {
       });
     },
     onError: (error) => {
-      console.error("Registration failed:", error);
+      console.error("Login failed:", error);
     },
   });
 

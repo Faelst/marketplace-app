@@ -11,10 +11,15 @@ import { CreditCard } from "../CreditCard";
 export const AddCardBottomSheetView: React.FC<
   ReturnType<typeof useAddCardBottomSheetViewModel>
 > = ({
-  handleCreateCreditCard,
   control,
+  isFlipped,
+  focusedField,
+  watchedValue,
+  handleCreateCreditCard,
   expirationDateMask,
   cardNumberMask,
+  handleFieldFocus,
+  handleFieldBlur,
 }) => {
   return (
     <ScrollView className="flex-1">
@@ -28,7 +33,11 @@ export const AddCardBottomSheetView: React.FC<
           </TouchableOpacity>
         </View>
 
-        <CreditCard />
+        <CreditCard
+          focusedField={focusedField}
+          isFlipped={isFlipped}
+          watchedValue={watchedValue}
+        />
 
         <View className="mt-6 gap-4">
           <AppInputController
@@ -40,6 +49,8 @@ export const AddCardBottomSheetView: React.FC<
             mask={cardNumberMask}
             keyboardType="numeric"
             maxLength={19}
+            onFocus={() => handleFieldFocus("number")}
+            onBlur={handleFieldBlur}
           />
 
           <AppInputController
@@ -48,6 +59,9 @@ export const AddCardBottomSheetView: React.FC<
             placeholder="Nome completo"
             leftIcon="person-outline"
             label="Nome completo"
+            keyboardType="default"
+            onFocus={() => handleFieldFocus("titularName")}
+            onBlur={handleFieldBlur}
           />
 
           <View className="flex-row gap-4">
@@ -61,6 +75,8 @@ export const AddCardBottomSheetView: React.FC<
                 keyboardType="numeric"
                 maxLength={5}
                 mask={expirationDateMask}
+                onFocus={() => handleFieldFocus("expirationDate")}
+                onBlur={handleFieldBlur}
               />
             </View>
 
@@ -73,6 +89,8 @@ export const AddCardBottomSheetView: React.FC<
                 label="Código de segurança"
                 keyboardType="numeric"
                 maxLength={3}
+                onFocus={() => handleFieldFocus("CVV")}
+                onBlur={handleFieldBlur}
               />
             </View>
           </View>

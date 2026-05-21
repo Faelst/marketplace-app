@@ -46,7 +46,6 @@ export const useAppModal = () => {
         close();
       },
     });
-    console.log("Showing success modal with content:", content);
     open(content, {});
   };
 

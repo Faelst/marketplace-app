@@ -6,41 +6,23 @@ import {
   CreditCardSchema,
 } from "../../shared/schemas/credit-card-schema";
 import { useBottomSheetStore } from "../../shared/store/bottomsheet-store";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { formatExpirationDate } from "../../shared/helpers/format-expiration-date";
 
-type FocusedField = "number" | "CVV" | "expirationDate" | null;
-
-const formatExpirationDate = (
-  dateString: string,
-  setError: (message: string) => void,
-): string => {
-  const [month, year] = dateString.split("/").map(Number);
-
-  if (isNaN(month) || isNaN(year)) {
-    setError("Invalid expiration date format");
-    throw new Error("Invalid expiration date format");
-  }
-
-  if (month < 1 || month > 12) {
-    setError("Invalid month in expiration date");
-    throw new Error("Invalid month in expiration date");
-  }
-
-  if (year < 0 || year > 99) {
-    setError("Invalid year in expiration date");
-    throw new Error("Invalid year in expiration date");
-  }
-
-  const fullYear = year < 100 ? 2000 + year : year;
-  const expirationDate = new Date(fullYear, month - 1, 1);
-  return expirationDate.toISOString().split("T")[0];
-};
+export type FocusedField =
+  | "number"
+  | "CVV"
+  | "expirationDate"
+  | "titularName"
+  | null;
 
 export const useAddCardBottomSheetViewModel = () => {
   const createCreditCardMutation = useCreateCreditCardMutation();
   const [focusedField, setFocusedField] = useState<FocusedField>(null);
 
-  const { control, handleSubmit, reset, clearErrors, setError } =
+  const blurTimeoutRef = useRef<any | null>(null);
+
+  const { control, handleSubmit, reset, clearErrors, setError, watch } =
     useForm<CreditCardFormData>({
       resolver: yupResolver(CreditCardSchema),
       defaultValues: {
@@ -90,18 +72,33 @@ export const useAddCardBottomSheetViewModel = () => {
   };
 
   const handleFieldFocus = (field: FocusedField) => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
     setFocusedField(field);
   };
 
   const handleFieldBlur = () => {
-    setFocusedField(null);
+    blurTimeoutRef.current = setTimeout(() => {
+      setFocusedField(null);
+    }, 100);
   };
 
   const isFlipped = focusedField === "CVV";
 
+  const watchedValue = {
+    number: watch("number"),
+    titularName: watch("titularName"),
+    expirationDate: watch("expirationDate"),
+    CVV: watch("CVV"),
+  };
+
   return {
     control,
     isFlipped,
+    focusedField,
+    watchedValue,
     handleSubmit,
     reset,
     clearErrors,

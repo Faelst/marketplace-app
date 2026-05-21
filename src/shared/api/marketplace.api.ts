@@ -5,8 +5,8 @@ import { useUserStore } from "../store/user-store";
 
 const getBaseURL = () => {
   return Platform.select({
-    ios: "http://192.168.200.45:3001",
-    android: "http://192.168.200.45:3001",
+    ios: "http://172.20.10.3:3001",
+    android: "http://172.20.10.3:3001",
     default: "http://localhost:3000",
   });
 };
